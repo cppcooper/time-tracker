@@ -12,10 +12,7 @@ int16_t key_wait()
     for(int i = 0; i < 2; ++i)
     {
         uint8_t j = 0;
-        while(!_kbhit()){
-            if(++j > 1)
-                return -1;
-        }
+        while(!_kbhit()){}
         input.key_bytes[i] = _getch();
         switch(input.key_bytes[i])
         {

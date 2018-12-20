@@ -20,6 +20,12 @@ BOOL CtrlHandler(DWORD fdwCtrlType){
     return instance->close(fdwCtrlType);
 }
 
+tracker::tracker(int init_time){
+    initial_time = init_time;
+    instance = this;
+    SetConsoleCtrlHandler((PHANDLER_ROUTINE)CtrlHandler,TRUE);
+}
+
 void tracker::load(){
     log.open("time_log.csv", std::ios::in);
     std::string line;
@@ -54,22 +60,15 @@ void tracker::clear(){
     previous_time = 0.0;
 }
 
-tracker::tracker(int init_time){
-    initial_time = init_time;
-    instance = this;
-    SetConsoleCtrlHandler((PHANDLER_ROUTINE)CtrlHandler,TRUE);
-}
-
 BOOL tracker::close(DWORD fdwCtrlType){ 
     if(fdwCtrlType == CTRL_C_EVENT){ 
         // Handle the CTRL-C signal. 
         clock.stop();
-        loop = true;
-        sleep(1000); //finish printing, catch on loop
+        exiting = true;
         paused = false;
+        sleep(666); //finish printing
         print();
         save();
-        exit(0);
     } 
     return FALSE;
 }
@@ -77,14 +76,9 @@ BOOL tracker::close(DWORD fdwCtrlType){
 void tracker::track_time(){
     load();
     clock.start(initial_time);
-    auto capcall = [&](){
-        print();
-    };
-    auto callback = [](void* arg){
-        (*static_cast<decltype(capcall)*>(arg))();
-    };
-    while( true ){
-        short key = key_wait(callback,&capcall);
+    printing = std::thread(&tracker::print,this);
+    while( !exiting ){
+        short key = key_wait();
         switch( key ){
             case ' ':
                 if( paused ){
@@ -106,24 +100,25 @@ void tracker::track_time(){
                 load();
                 break;
         }
-        while(loop){}
     }
+    printing.join();
 }
 
 void tracker::print(){
-    std::string time = formatDuration(std::chrono::duration_cast<std::chrono::seconds>(duration<double>(previous_time + clock.elapsed_seconds())));
-    printf("\x1b[A\r                               ");
-    printf("\x1b[A\r                               ");
-    printf("\x1b[A\r              ");
-    if (paused){
-        printf("\r    - PAUSED -   ");
-        printf("\nAccumulated Time: %s",time.c_str());
-        printf("\nSession Time: %s\n",clock.elapsed_timestamp().c_str());
-        sleep(25);
-    }
-    else{
-        printf("\nAccumulated Time: %s",time.c_str());
-        printf("\nSession Time: %s\n",clock.elapsed_timestamp().c_str());
-        sleep(25);
+    while(!exiting){
+        std::string time = formatDuration(std::chrono::duration_cast<std::chrono::seconds>(duration<double>(previous_time + clock.elapsed_seconds())));
+        printf("\x1b[A\r                               ");
+        printf("\x1b[A\r                               ");
+        printf("\x1b[A\r              ");
+        if (paused){
+            printf("\r    - PAUSED -   ");
+            printf("\nAccumulated Time: %s",time.c_str());
+            printf("\nSession Time: %s\n",clock.elapsed_timestamp().c_str());
+        }
+        else{
+            printf("\nAccumulated Time: %s",time.c_str());
+            printf("\nSession Time: %s\n",clock.elapsed_timestamp().c_str());
+        }
+        sleep(333);
     }
 }
