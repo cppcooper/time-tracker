@@ -69,6 +69,7 @@ BOOL tracker::close(DWORD fdwCtrlType){
         sleep(666); //finish printing
         print();
         save();
+        exit(0);
     } 
     return FALSE;
 }
