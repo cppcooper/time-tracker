@@ -1,6 +1,5 @@
-#include "../include/tracker.h"
-#include <sstream>
-#include <iostream>
+#include <stdafx.h>
+#include <tracker.h>
 
 extern BOOL CtrlHandler(DWORD fdwCtrlType);
 

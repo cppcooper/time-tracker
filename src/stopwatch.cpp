@@ -1,7 +1,5 @@
-#include "../include/stopwatch.h"
-#include "../include/timeformat.h"
-#include <iostream>
-#include <ctime>
+#include <stopwatch.h>
+#include <timeformat.h>
 
 void StopWatch::start(int initial_time){
     //printf("\nstart\n");

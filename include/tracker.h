@@ -1,6 +1,5 @@
-#include <thread>
-#include <fstream>
-#include <windows.h>
+#pragma once
+#include "stdafx.h"
 #include "stopwatch.h"
 
 class tracker{

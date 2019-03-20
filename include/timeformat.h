@@ -1,9 +1,5 @@
 #pragma once
-#include <chrono>
-#include <iostream>
-#include <sstream>
-#include <iomanip>
-#include <tuple>
+#include "stdafx.h"
 
 using namespace std::chrono;
 

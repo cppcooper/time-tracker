@@ -1,13 +1,6 @@
-#include "../include/tracker.h"
-#include "../include/timeformat.h"
-#include "../include/key_wait.h"
-#include <cstdio>
-#include <string>
-#include <thread>
-#include <cstdlib>
-#include <cstdint>
-#include <sstream>
-#include <iostream>
+#include <tracker.h>
+#include <timeformat.h>
+#include <input.h>
 
 int initial_time = 0;
 tracker* instance = nullptr;
