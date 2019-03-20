@@ -77,11 +77,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='c.tools.bin|x64'">
-    <OutDir>C:\home\win-sys\C\tools\bin\</OutDir>
+    <OutDir>C:\tools\bin\</OutDir>
     <TargetName>tracktime</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='win-sys.c.tools.bin|x64'">
-    <OutDir>C:\tools\bin\</OutDir>
+    <OutDir>C:\home\win-sys\C\tools\bin\</OutDir>
     <TargetName>tracktime</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
