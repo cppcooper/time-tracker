@@ -22,5 +22,6 @@ public:
     void resume();
     
     double elapsed_seconds();
+    double elapsed_hours();
     std::string elapsed_timestamp();
 };

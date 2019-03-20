@@ -23,18 +23,31 @@ tracker::tracker(int init_time){
 void tracker::load(){
     log.open("time_log.csv", std::ios::in);
     std::string line;
-    while(std::getline(log,line)){
-        std::stringstream ssline(line);
-        std::string word;
-        previous_time = 0.0;
-        while(std::getline(ssline,word,',')){
-            std::stringstream token(word);
-            double seconds = 0.0;
-            token >> seconds;
-            if(token.bad()){
-                throw std::exception("token conversion to double failed");
+    if(std::getline(log,line)){
+        {
+            int dollars = 0;
+            std::stringstream ssline(line);
+            ssline >> dollars;
+            if(!ssline.fail()){
+                hourly_rate = dollars / 100.f;
+            } else {
+                log.close();
+                log.open("time_log.csv", std::ios::in);
             }
-            previous_time += seconds;
+        }
+        while(std::getline(log,line)){
+            std::stringstream ssline(line);
+            std::string word;
+            previous_time = 0.0;
+            while(std::getline(ssline,word,',')){
+                std::stringstream token(word);
+                double seconds = 0.0;
+                token >> seconds;
+                if(token.bad()){
+                    throw std::exception("token conversion to double failed");
+                }
+                previous_time += seconds;
+            }
         }
     }
     log.close();
@@ -107,11 +120,17 @@ void tracker::print(){
         printf("\x1b[A\r              ");
         if (paused){
             printf("\r    - PAUSED -   ");
-            printf("\nAccumulated Time: %s",time.c_str());
+            if(hourly_rate < 0)
+                printf("\nAccumulated Time: %s",time.c_str());
+            else
+                printf("\nAccumulated Time: %s - $%.2f",time.c_str(),clock.elapsed_hours()*hourly_rate);
             printf("\nSession Time: %s\n",clock.elapsed_timestamp().c_str());
         }
         else{
-            printf("\nAccumulated Time: %s",time.c_str());
+            if(hourly_rate < 0)
+                printf("\nAccumulated Time: %s",time.c_str());
+            else
+                printf("\nAccumulated Time: %s - $%.2f",time.c_str(),clock.elapsed_hours()*hourly_rate);
             printf("\nSession Time: %s\n",clock.elapsed_timestamp().c_str());
         }
         sleep(333);

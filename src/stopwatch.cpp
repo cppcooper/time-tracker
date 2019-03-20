@@ -41,6 +41,15 @@ double StopWatch::elapsed_seconds(){
     return m_seconds.count();
 }
 
+double StopWatch::elapsed_hours(){
+    if( !m_paused ){
+        duration<double> duration = my_clock.now() - m_start;
+        auto temp = duration + m_seconds;
+        return temp.count() / 3600.f;
+    }
+    return m_seconds.count() / 3600.f;
+}
+
 std::string StopWatch::elapsed_timestamp(){
     if( !m_paused ){
         duration<double> duration = my_clock.now() - m_start;

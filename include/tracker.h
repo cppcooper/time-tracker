@@ -10,6 +10,7 @@ private:
     bool paused = false;
     bool exiting = false;
     double previous_time = 0;
+    double hourly_rate = -1.f;
 
 protected:
     void load();
