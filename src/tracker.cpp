@@ -1,3 +1,4 @@
+#include <stdafx.h>
 #include <tracker.h>
 #include <timeformat.h>
 #include <input.h>

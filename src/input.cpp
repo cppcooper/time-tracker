@@ -1,3 +1,4 @@
+#include <stdafx.h>
 #include <input.h>
 
 int16_t key_wait();
