@@ -3,6 +3,22 @@
 #include <timeformat.h>
 #include <input.h>
 
+struct delimiter_ctype : std::ctype<char> {
+    static const mask* make_table(std::string delims)
+    {
+        // make a copy of the "C" locale table
+        static std::vector<mask> v(classic_table(), classic_table() + table_size);
+        for(mask m : v){
+            m &= ~space;
+        }
+        for(char d : delims){
+            v[d] |= space;
+        }
+        return &v[0];
+    }
+    delimiter_ctype(std::string delims, ::size_t refs = 0) : ctype(make_table(delims), false, refs) {}
+};
+
 int initial_time = 0;
 tracker* instance = nullptr;
 
@@ -23,32 +39,22 @@ tracker::tracker(int init_time){
 void tracker::load(){
     log.open("time_log.csv", std::ios::in);
     std::string line;
-    if(std::getline(log,line)){
-        {
+    std::stringstream ssline;
+    ssline.imbue(std::locale(ssline.getloc(),new delimiter_ctype(",")));
+    while(std::getline(log,line)){
+        ssline.clear();
+        ssline.str(line);
+        if(line.substr(0,line.find(',')).find('.') == std::string::npos){
             int dollars = 0;
-            std::stringstream ssline(line);
             ssline >> dollars;
-            if(!ssline.fail()){
-                hourly_rate = dollars / 100.f;
-            } else {
-                log.close();
-                log.open("time_log.csv", std::ios::in);
-            }
+            hourly_rate = dollars / 100.f;
         }
-        while(std::getline(log,line)){
-            std::stringstream ssline(line);
-            std::string word;
-            previous_time = 0.0;
-            while(std::getline(ssline,word,',')){
-                std::stringstream token(word);
-                double seconds = 0.0;
-                token >> seconds;
-                if(token.bad()){
-                    throw std::exception("token conversion to double failed");
-                }
-                previous_time += seconds;
-            }
+        previous_seconds = 0.0;
+        double seconds;
+        while(ssline >> seconds){
+            previous_seconds += seconds;
         }
+        previous_hours = previous_seconds / 3600;
     }
     log.close();
 }
@@ -62,9 +68,12 @@ void tracker::save(){
 
 void tracker::clear(){
     log.open("time_log.csv", std::ios::out | std::ios::app);
-    log << "\n0.0,";
+    //std::stringstream buffer("\n");
+    //buffer << (int)(hourly_rate * 100) << ",0.0,";
+    log << "\n0.0,"; //buffer.str();
     log.close();
-    previous_time = 0.0;
+    previous_seconds = 0.0;
+    previous_hours = 0.0;
 }
 
 BOOL tracker::close(DWORD fdwCtrlType){ 
@@ -102,7 +111,8 @@ void tracker::track_time(){
                 clear();
                 break;
             case 8:
-                previous_time = 0.0;
+                previous_seconds = 0.0;
+                previous_hours = 0.0;
                 break;
             case 21216:
                 load();
@@ -114,7 +124,7 @@ void tracker::track_time(){
 
 void tracker::print(){
     while(!exiting){
-        std::string time = formatDuration(std::chrono::duration_cast<std::chrono::seconds>(duration<double>(previous_time + clock.elapsed_seconds())));
+        std::string time = formatDuration(std::chrono::duration_cast<std::chrono::seconds>(duration<double>(previous_seconds + clock.elapsed_seconds())));
         printf("\x1b[A\r                               ");
         printf("\x1b[A\r                               ");
         printf("\x1b[A\r              ");
@@ -123,14 +133,14 @@ void tracker::print(){
             if(hourly_rate < 0)
                 printf("\nAccumulated Time: %s",time.c_str());
             else
-                printf("\nAccumulated Time: %s - $%.2f",time.c_str(),clock.elapsed_hours()*hourly_rate);
+                printf("\nAccumulated Time: %s - $%.2f",time.c_str(),(previous_hours + clock.elapsed_hours())*hourly_rate);
             printf("\nSession Time: %s\n",clock.elapsed_timestamp().c_str());
         }
         else{
             if(hourly_rate < 0)
                 printf("\nAccumulated Time: %s",time.c_str());
             else
-                printf("\nAccumulated Time: %s - $%.2f",time.c_str(),clock.elapsed_hours()*hourly_rate);
+                printf("\nAccumulated Time: %s - $%.2f",time.c_str(),(previous_hours + clock.elapsed_hours())*hourly_rate);
             printf("\nSession Time: %s\n",clock.elapsed_timestamp().c_str());
         }
         sleep(333);

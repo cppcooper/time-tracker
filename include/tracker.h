@@ -9,7 +9,8 @@ private:
     StopWatch clock;
     bool paused = false;
     bool exiting = false;
-    double previous_time = 0;
+    double previous_seconds = 0;
+    double previous_hours = 0;
     double hourly_rate = -1.f;
 
 protected:
