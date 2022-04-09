@@ -1,7 +1,7 @@
-#include "stdafx.h"
-#include "tracker.h"
-
-extern BOOL CtrlHandler(DWORD fdwCtrlType);
+#include "system/captures.h"
+#include "tracking/tracker.h"
+#include <iostream>
+#include <sstream>
 
 int main( int argc, char* argv[] ){
     int initial_time = 0;
@@ -13,8 +13,7 @@ int main( int argc, char* argv[] ){
             return 2;
         }
     }
-    if( SetConsoleCtrlHandler( (PHANDLER_ROUTINE) CtrlHandler, TRUE ) ) 
-    { 
+    if( CreateCaptures() ) {
         tracker t(initial_time);
         printf("\nTime Tracker\n-----------");
         printf("\n -        Space   -- pause/resume tracking.");
