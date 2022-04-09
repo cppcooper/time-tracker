@@ -1,7 +1,7 @@
-#include <stdafx.h>
-#include <tracker.h>
-#include <timeformat.h>
-#include <input.h>
+#include "system/input.h"
+#include "tracking/tracker.h"
+#include "tracking/timeformat.h"
+#include <vector>
 
 struct delimiter_ctype : std::ctype<char> {
     static const mask* make_table(std::string delims)
@@ -26,14 +26,9 @@ inline void sleep(uint16_t milli_seconds){
     std::this_thread::sleep_for(std::chrono::milliseconds(milli_seconds));
 }
 
-BOOL CtrlHandler(DWORD fdwCtrlType){
-    return instance->close(fdwCtrlType);
-}
-
 tracker::tracker(int init_time){
     initial_time = init_time;
     instance = this;
-    SetConsoleCtrlHandler((PHANDLER_ROUTINE)CtrlHandler,TRUE);
 }
 
 void tracker::load(){
@@ -76,18 +71,9 @@ void tracker::clear(){
     previous_hours = 0.0;
 }
 
-BOOL tracker::close(DWORD fdwCtrlType){ 
-    if(fdwCtrlType == CTRL_C_EVENT){ 
-        // Handle the CTRL-C signal. 
-        clock.stop();
-        exiting = true;
-        paused = false;
-        sleep(666); //finish printing
-        print();
-        save();
-        exit(0);
-    } 
-    return FALSE;
+void tracker::close(){
+    exiting = true;
+    paused = false;
 }
 
 void tracker::track_time(){
@@ -120,6 +106,9 @@ void tracker::track_time(){
         }
     }
     printing.join();
+    clock.stop();
+    print();
+    save();
 }
 
 void tracker::print(){
@@ -143,6 +132,6 @@ void tracker::print(){
                 printf("\nAccumulated Time: %s - $%.2f",time.c_str(),(previous_hours + clock.elapsed_hours())*hourly_rate);
             printf("\nSession Time: %s\n",clock.elapsed_timestamp().c_str());
         }
-        sleep(333);
+        std::this_thread::sleep_for(std::chrono::milliseconds(333));
     }
 }

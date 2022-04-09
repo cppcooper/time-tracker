@@ -1,5 +1,7 @@
 #pragma once
-#include "stdafx.h"
+#include <tuple>
+#include <string>
+#include <iomanip>
 
 using namespace std::chrono;
 

@@ -1,6 +1,7 @@
 #pragma once
-#include "stdafx.h"
 #include "stopwatch.h"
+#include <fstream>
+#include <thread>
 
 class tracker{
 private:
@@ -20,7 +21,7 @@ protected:
 
 public:
     tracker(int);
-    BOOL close(DWORD);
+    void close();
     void track_time();
     void print();
 };

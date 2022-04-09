@@ -1,5 +1,6 @@
 #pragma once
-#include "stdafx.h"
+#include <chrono>
+#include <string>
 
 using namespace std::chrono;
 

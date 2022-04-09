@@ -1,17 +1,7 @@
-#include "stdafx.h"
-#include "input.h"
+#include "system/input.h"
 
 int16_t key_wait();
 void clear_input();
-
-bool verify(){
-    short input = -1;
-    do{
-        printf("Y/N\n");
-        input = key_wait();
-    } while(input != 'Y' && input != 'y' && input != 'N' && input != 'n');
-    return input == 'Y' || input == 'y';
-}
 
 int16_t key_wait(){
     union Key

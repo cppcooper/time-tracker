@@ -1,6 +1,6 @@
-#include <stdafx.h>
-#include <stopwatch.h>
-#include <timeformat.h>
+#include "tracking/stopwatch.h"
+#include "tracking/timeformat.h"
+#include <string>
 
 void StopWatch::start(int initial_time){
     //printf("\nstart\n");
