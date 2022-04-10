@@ -1,5 +1,5 @@
 # time-tracker
-Command line time Tracker for session/accumulated time.
+Command line time tracker for session/accumulated time.
 
 ## Install
 This requires ncurses to build.
