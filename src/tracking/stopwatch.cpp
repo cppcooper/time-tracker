@@ -54,7 +54,7 @@ std::string StopWatch::elapsed_timestamp(){
     if( !m_paused ){
         duration<double> duration = my_clock.now() - m_start;
         auto temp = std::chrono::duration_cast<std::chrono::seconds>(duration + m_seconds);
-        return formatDuration(temp);
+        return format_duration(temp);
     }
-    return formatDuration(std::chrono::duration_cast<std::chrono::seconds>(m_seconds));
+    return format_duration(std::chrono::duration_cast<std::chrono::seconds>(m_seconds));
 }

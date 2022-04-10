@@ -14,13 +14,8 @@ int main( int argc, char* argv[] ){
         }
     }
     if( CreateCaptures() ) {
-        tracker t(initial_time);
-        printf("\nTime Tracker\n-----------");
-        printf("\n -        Space   -- pause/resume tracking.");
-        printf("\n -        Insert  -- load accumulated time.");
-        printf("\n -        BkSpace -- don't show accumulated time.");
-        printf("\n - Ctrl + BkSpace -- reset accumulated time.");
-        printf("\n - Ctrl + C       -- stop tracking and exit.\n\n\n\n\n");
+        Tracker t(initial_time);
+        //return 0;
         t.track_time();
     }
     else {

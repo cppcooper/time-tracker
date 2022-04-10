@@ -3,7 +3,7 @@
 #include "tracking/tracker.h"
 #include <csignal>
 
-extern tracker* instance;
+extern Tracker* instance;
 
 inline void SigHandler(int signal) {
     switch(signal){

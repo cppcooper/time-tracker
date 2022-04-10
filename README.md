@@ -1,5 +1,5 @@
 # timetracker
-Command line time tracker for session/accumulated time.
+Command line time Tracker for session/accumulated time.
 ```
 [Thu 00:20:18] /d/projects/timetracker/build/bin/TimeTracker/x64_Release (master)
  coope@myhost $ ./TimeTracker.exe 15

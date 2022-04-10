@@ -13,3 +13,4 @@ include_directories(include)
 
 # targets
 add_executable(${TARGET} ${SOURCES})
+target_link_libraries(${TARGET} ncurses)

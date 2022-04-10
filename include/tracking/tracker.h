@@ -1,26 +1,28 @@
 #pragma once
 #include "stopwatch.h"
-#include <fstream>
+#include "system/screen-controller.h"
+#include "system/hours-file.h"
 #include <thread>
+#include <atomic>
+#include <filesystem>
 
-class tracker{
+namespace fs = std::filesystem;
+
+class Tracker{
 private:
+    fs::path config;
     std::thread printing;
-    std::fstream log;
     StopWatch clock;
-    bool paused = false;
-    bool exiting = false;
-    double previous_seconds = 0;
-    double previous_hours = 0;
+    HoursFile hours_file;
+    std::atomic<bool> paused = false;
+    std::atomic<bool> exiting = false;
     double hourly_rate = -1.f;
 
 protected:
-    void load();
-    void save();
-    void clear();
+    int16_t key_wait();
 
 public:
-    tracker(int);
+    Tracker(int);
     void close();
     void track_time();
     void print();

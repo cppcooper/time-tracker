@@ -12,7 +12,7 @@ inline void tuple_for_each(const Container& c, Fun fun)
         fun(std::get<0>(e), std::get<1>(e), std::get<2>(e));
 }
  
-inline std::string formatDuration(seconds time)
+inline std::string format_duration(seconds time)
 {
     using T = std::tuple<seconds, int, const char *>;
     
