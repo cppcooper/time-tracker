@@ -1,8 +1,12 @@
-#include "tracking/stopwatch.h"
+#include "tracking/punch-clock.h"
 #include "tracking/timeformat.h"
 #include <string>
+#include <fmt/format.h>
+#include <chrono>
+#include <fmt/chrono.h>
+#include <date/date.h>
 
-void StopWatch::start(int initial_time){
+void PunchClock::start(int initial_time){
     //printf("\nstart\n");
     m_paused = false;
     m_start = m_end = my_clock.now();
@@ -10,7 +14,7 @@ void StopWatch::start(int initial_time){
     m_seconds = t;
 }
 
-void StopWatch::stop(){
+void PunchClock::stop(){
     //printf("\nstop\n");
     if(!m_paused){
         m_paused = true;
@@ -19,20 +23,20 @@ void StopWatch::stop(){
     }
 }
 
-void StopWatch::pause(){
+void PunchClock::pause(){
     //printf("\npause\n");
     m_paused = true;
     m_end = my_clock.now();
     m_seconds += m_end - m_start;
 }
 
-void StopWatch::resume(){
+void PunchClock::resume(){
     //printf("\nresume\n");
     m_paused = false;
     m_start = m_end = my_clock.now();
 }
 
-double StopWatch::elapsed_seconds(){
+double PunchClock::elapsed_seconds(){
     if( !m_paused ){
         duration<double> duration = my_clock.now() - m_start;
         auto temp = duration + m_seconds;
@@ -41,7 +45,7 @@ double StopWatch::elapsed_seconds(){
     return m_seconds.count();
 }
 
-double StopWatch::elapsed_hours(){
+double PunchClock::elapsed_hours(){
     if( !m_paused ){
         duration<double> duration = my_clock.now() - m_start;
         auto temp = duration + m_seconds;
@@ -50,11 +54,24 @@ double StopWatch::elapsed_hours(){
     return m_seconds.count() / 3600.f;
 }
 
-std::string StopWatch::elapsed_timestamp(){
+std::string PunchClock::elapsed_timestamp(){
     if( !m_paused ){
         duration<double> duration = my_clock.now() - m_start;
         auto temp = std::chrono::duration_cast<std::chrono::seconds>(duration + m_seconds);
         return format_duration(temp);
     }
     return format_duration(std::chrono::duration_cast<std::chrono::seconds>(m_seconds));
+}
+
+constexpr const char* date_fmt = "%Y-%M-%D";
+constexpr const char* time_fmt = "%H:%M:%S";
+
+void PunchClock::clock_in() {
+    auto t = my_clock.now();
+    std::string date = fmt::format(date_fmt, t);
+    std::string timestamp = fmt::format(time_fmt, t);
+}
+
+void PunchClock::clock_out() {
+
 }

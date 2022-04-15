@@ -4,7 +4,7 @@
 
 using namespace std::chrono;
 
-class StopWatch
+class PunchClock
 {
 private:
     bool m_paused = false;
@@ -14,13 +14,22 @@ private:
     duration<double> m_seconds;
 
 public:
-    StopWatch(){
+    PunchClock(){
         start();
     }
     void start(int initial_time = 0);
     void stop();
     void pause();
     void resume();
+
+    /*
+    1. date
+    2. clock-in
+    3. clock-out
+    4. repeat 2,3
+    require manual clock-in/out
+    create new line if line date doesn't match current date
+    */
     
     double elapsed_seconds();
     double elapsed_hours();
