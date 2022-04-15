@@ -1,7 +1,7 @@
 #pragma once
-#include "punch-clock.h"
 #include "system/screen-controller.h"
-#include "system/hours-file.h"
+#include "time/punch-clock.h"
+#include "time/hours-file.h"
 #include <thread>
 #include <atomic>
 #include <filesystem>

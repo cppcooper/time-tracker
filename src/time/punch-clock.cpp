@@ -1,10 +1,10 @@
-#include "tracking/punch-clock.h"
-#include "tracking/timeformat.h"
+#include "time/punch-clock.h"
+#include "time/formatting.h"
 #include <string>
 #include <fmt/format.h>
 #include <chrono>
 #include <fmt/chrono.h>
-#include <date/date.h>
+//#include <date/date.h>
 
 void PunchClock::start(int initial_time){
     //printf("\nstart\n");
@@ -63,12 +63,9 @@ std::string PunchClock::elapsed_timestamp(){
     return format_duration(std::chrono::duration_cast<std::chrono::seconds>(m_seconds));
 }
 
-constexpr const char* date_fmt = "%Y-%M-%D";
-constexpr const char* time_fmt = "%H:%M:%S";
-
 void PunchClock::clock_in() {
-    auto t = my_clock.now();
-    std::string date = fmt::format(date_fmt, t);
+    auto t = std::chrono::system_clock::now();
+    std::string current_date = fmt::format(date_fmt, t);
     std::string timestamp = fmt::format(time_fmt, t);
 }
 
