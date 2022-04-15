@@ -1,4 +1,8 @@
 #include "system/hours-file.h"
+#include <chrono>
+#include <date/date.h>
+#include <fmt/format.h>
+
 #include <sstream>
 #include <vector>
 
@@ -41,6 +45,37 @@ void HoursFile::load_past_hours() {
     }
     log.close();
 }
+
+constexpr const char* date_fmt = "%Y-%M-%D";
+constexpr const char* time_fmt = "%H:%M:%S";
+using namespace std::chrono;
+namespace dt = date;
+
+void HoursFile::load_day_hours() {
+
+    log.open(file, std::ios::in);
+    std::string line;
+    std::stringstream ssline;
+    ssline.imbue(std::locale(ssline.getloc(), new delimiter_ctype(",")));
+    while (std::getline(log, line)) {
+        ssline.clear();
+        ssline.str(line);
+        if (!dt::from_stream(ssline, date_fmt, date)) {
+            continue;
+        }
+        time_point<system_clock> time_in;
+        time_point<system_clock> time_out;
+        duration<seconds> elapsed;
+        bool odd = true;
+        while (dt::from_stream(ssline, time_fmt, odd ? time_in : time_out)) {
+            if (!odd) {
+                elapsed = time_out - time_in;
+            }
+            odd = !odd;
+        }
+    }
+}
+
 
 void HoursFile::save(double elapsed) {
     log.open(file, std::ios::out | std::ios::app);
