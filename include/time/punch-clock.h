@@ -11,6 +11,8 @@ private:
     system_clock my_clock;
     time_point<system_clock> date;
     time_point<system_clock> time;
+    time_point<system_clock> m_start;
+    time_point<system_clock> m_end;
     duration<double> m_seconds;
 
 public:

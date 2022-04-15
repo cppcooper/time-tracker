@@ -1,5 +1,5 @@
 #include "tracking/tracker.h"
-#include "tracking/timeformat.h"
+#include "time/formatting.h"
 #include <filesystem>
 
 namespace fs = std::filesystem;

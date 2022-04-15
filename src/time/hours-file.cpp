@@ -1,10 +1,12 @@
-#include "system/hours-file.h"
-#include <chrono>
+#include "time/hours-file.h"
+#include "time/formatting.h"
+
 #include <date/date.h>
 #include <fmt/format.h>
-
-#include <sstream>
+#include <fmt/chrono.h>
+#include <chrono>
 #include <vector>
+#include <string>
 
 struct delimiter_ctype : std::ctype<char> {
     static const mask* make_table(std::string delims) {
@@ -46,12 +48,13 @@ void HoursFile::load_past_hours() {
     log.close();
 }
 
-constexpr const char* date_fmt = "%Y-%M-%D";
-constexpr const char* time_fmt = "%H:%M:%S";
-using namespace std::chrono;
 namespace dt = date;
-
-void HoursFile::load_day_hours() {
+void HoursFile::load() {
+    time_point_sc t = chrono::system_clock::now();
+    std::string current_date = fmt::format(date_fmt, t);
+    std::string timestamp = fmt::format(time_fmt, t);
+    elapsed_past = chrono::minutes::zero();
+    elapsed_today = chrono::minutes::zero();
 
     log.open(file, std::ios::in);
     std::string line;
@@ -63,17 +66,19 @@ void HoursFile::load_day_hours() {
         if (!dt::from_stream(ssline, date_fmt, date)) {
             continue;
         }
-        time_point<system_clock> time_in;
-        time_point<system_clock> time_out;
-        duration<seconds> elapsed;
+        std::string line_date = fmt::format(date_fmt, date);
+        time_point_sc time_in;
+        time_point_sc time_out;
+        chrono::minutes &elapsed = current_date == line_date ? elapsed_today : elapsed_past;
         bool odd = true;
         while (dt::from_stream(ssline, time_fmt, odd ? time_in : time_out)) {
             if (!odd) {
-                elapsed = time_out - time_in;
+                elapsed += chrono::duration_cast<chrono::minutes>(time_out - time_in);
             }
             odd = !odd;
         }
     }
+
 }
 
 
