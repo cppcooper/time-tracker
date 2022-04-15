@@ -1,5 +1,5 @@
 #pragma once
-#include "stopwatch.h"
+#include "punch-clock.h"
 #include "system/screen-controller.h"
 #include "system/hours-file.h"
 #include <thread>
@@ -12,7 +12,7 @@ class Tracker{
 private:
     fs::path config;
     std::thread printing;
-    StopWatch clock;
+    PunchClock clock;
     HoursFile hours_file;
     std::atomic<bool> paused = false;
     std::atomic<bool> exiting = false;
