@@ -13,7 +13,7 @@ inline fs::path GetConfigPath() {
     std::string path = getenv("HOMEPATH");
     home_path.append(path);
 #endif
-    return home_path + "time-tracking-wage";
+    return home_path + "time-tracker";
 }
 
 int initial_time = 0;
@@ -65,6 +65,7 @@ void Tracker::track_time() {
             case 8:
                 hours_file.zero();
                 break;
+            //todo: fix insert key detect
             case 21216:
                 hours_file.load_past_hours();
                 break;
