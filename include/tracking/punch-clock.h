@@ -9,14 +9,16 @@ class PunchClock
 private:
     bool m_paused = false;
     system_clock my_clock;
-    time_point<system_clock> m_start;
-    time_point<system_clock> m_end;
+    time_point<system_clock> date;
+    time_point<system_clock> time;
     duration<double> m_seconds;
 
 public:
     PunchClock(){
         start();
     }
+    void clock_in();
+    void clock_out();
     void start(int initial_time = 0);
     void stop();
     void pause();

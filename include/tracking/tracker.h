@@ -20,6 +20,8 @@ private:
 
 protected:
     int16_t key_wait();
+    void clock_in();
+    void clock_out();
 
 public:
     Tracker(int);

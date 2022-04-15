@@ -21,6 +21,6 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set(CMAKE_INSTALL_PREFIX /usr/bin)
 endif()
 add_executable(${TARGET} ${SOURCES})
-target_link_libraries(${TARGET} ncurses pthread)
+target_link_libraries(${TARGET} ncurses pthread fmt)
 install(TARGETS ${TARGET}
         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
