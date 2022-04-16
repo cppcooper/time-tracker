@@ -7,8 +7,8 @@ if(NOT CURSES_HAVE_NCURSES_H)
     message(FATAL_ERROR "Ncurses not found, please install.")
 endif()
 
-# target names
-set(TARGET time-tracker)
+# target name
+set(TARGET ${PROJECT_NAME})
 
 # dependencies
 file(GLOB_RECURSE SOURCES LIST_DIRECTORIES false src/*)
