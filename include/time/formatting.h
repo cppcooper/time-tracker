@@ -1,34 +1,59 @@
 #pragma once
-#include <tuple>
+#include <chrono>
 #include <string>
+#include <vector>
 #include <iomanip>
+#include <fmt/format.h>
+#include <fmt/chrono.h>
+#include <date/date.h>
 
+namespace hhdate = date;
 namespace chrono = std::chrono;
+using time_point_sc = chrono::time_point<chrono::system_clock>;
 
-static constexpr const char* date_fmt = "%Y-%M-%D";
-static constexpr const char* time_fmt = "%H:%M:%S";
+static constexpr const char* date_format = "%F";
+static constexpr const char* time_format = "%F %T";
+static constexpr const char* fmt_date = "{:%F}";
+static constexpr const char* fmt_time = "{:%T}";
 
-template <typename Container, typename Fun>
-inline void tuple_for_each(const Container& c, Fun fun)
-{
-    for (auto& e : c)
-        fun(std::get<0>(e), std::get<1>(e), std::get<2>(e));
+inline std::string date_to_string(const time_point_sc time){
+    return fmt::format(fmt_date, time);
 }
- 
-inline std::string format_duration(chrono::seconds time)
-{
-    using T = std::tuple<chrono::seconds, int, const char *>;
-    
-    constexpr T formats[] = {
-        T{chrono::hours(1), 2, ""},
-        T{chrono::minutes(1), 2, ":"},
-        T{chrono::seconds(1), 2, ":"}
-    };
-    
-    std::ostringstream o;
-    tuple_for_each(formats, [&time, &o](auto denominator, auto width, auto separator) {
-        o << separator << std::setw(width) << std::setfill('0') << (time / denominator);
-        time = time % denominator;
-    });
-    return o.str();
+
+inline std::string time_to_string(const time_point_sc time){
+    return fmt::format(fmt_time, time);
+}
+
+inline std::string duration_to_string(const chrono::nanoseconds time){
+    return fmt::format(fmt_time, time);
+}
+
+struct delimiter_ctype : std::ctype<char> {
+    static const mask* make_table(std::string delims) {
+        // make a copy of the "C" locale table
+        static std::vector<mask> v(classic_table(), classic_table() + table_size);
+        for (mask m: v) {
+            m &= ~space;
+        }
+        for (char d: delims) {
+            v[d] |= space;
+        }
+        return &v[0];
+    }
+    explicit delimiter_ctype(std::string delims, ::size_t refs = 0) : ctype(make_table(delims), false, refs) {}
+};
+
+inline std::string duration_as_clock(chrono::nanoseconds time) {
+    std::ostringstream os;
+    os << std::setw(2) << std::setfill('0');
+    auto hours = chrono::hours(1);
+    auto minutes = chrono::minutes(1);
+    auto seconds = chrono::seconds(1);
+    os << (time / hours) << ":";
+    time = time % hours;
+    os << (time / minutes) << ":";
+    time = time % minutes;
+    os << (time / seconds);
+    time = time % seconds;
+    return os.str();
 }

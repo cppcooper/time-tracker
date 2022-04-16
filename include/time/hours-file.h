@@ -1,30 +1,32 @@
 #pragma once
-#include <fstream>
+#include "time/formatting.h"
 #include <filesystem>
+#include <fstream>
 #include <chrono>
+#include <atomic>
 
 namespace fs = std::filesystem;
-namespace chrono = std::chrono;
-using time_point_sc = chrono::time_point<chrono::system_clock>;
 
 class HoursFile {
 private:
     fs::path file;
     std::fstream log;
     time_point_sc date;
-    chrono::minutes elapsed_past;
-    chrono::minutes elapsed_today;
-    double _previous_seconds = 0;
-    double _previous_hours = 0;
+    time_point_sc time_in;
+    chrono::minutes elapsed_past = chrono::minutes::zero();
+    chrono::minutes elapsed_today = chrono::minutes::zero();
+    std::atomic<bool> _clocked_in = false;
+protected:
+    void save(const time_point_sc &clock);
 public:
     HoursFile();
-    void load_past_hours();
     void load();
-    void save(double elapsed);
-    void clear();
-    void zero();
-    std::string latest_date();
+    void checkin();
+    //void new_line();
+    //void new_file();
 
-    const double &previous_seconds = _previous_seconds;
-    const double &previous_hours = _previous_hours;
+    const chrono::minutes &past = elapsed_past;
+    const chrono::minutes &today = elapsed_today;
+    const time_point_sc &clock_in = time_in;
+    const std::atomic<bool> &clocked_in = _clocked_in;
 };
