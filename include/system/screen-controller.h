@@ -6,5 +6,5 @@ class ScreenController {
 public:
     static void initialize();
     static void deinitialize();
-    static void print(const Figures &figures, bool paused);
+    static void print(const Figures &figures, bool clocked_in);
 };

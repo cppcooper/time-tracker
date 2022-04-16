@@ -10,7 +10,7 @@ inline void SigHandler(int signal) {
         case SIGINT:
         case SIGABRT:
         case SIGTERM:
-            instance->close();
+            instance->shutdown();
     }
 }
 

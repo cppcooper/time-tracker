@@ -3,6 +3,7 @@
 #include <filesystem>
 
 namespace fs = std::filesystem;
+Tracker* instance = nullptr;
 
 inline fs::path GetConfigPath() {
     std::string home_path;
@@ -14,79 +15,6 @@ inline fs::path GetConfigPath() {
     home_path.append(path);
 #endif
     return home_path + "time-tracker";
-}
-
-int initial_time = 0;
-Tracker* instance = nullptr;
-
-Tracker::Tracker(int init_time){
-    config = GetConfigPath();
-    fs::create_directories(config.parent_path());
-    std::fstream file(config, std::ios::in);
-    std::string line;
-    std::stringstream ssline;
-    while(std::getline(file,line)) {
-        ssline.str(line);
-        if (line.substr(0, line.find(',')).find('.') == std::string::npos) {
-            int dollars = 0;
-            ssline >> dollars;
-            hourly_rate = dollars / 100.f;
-        }
-    }
-    initial_time = init_time;
-    instance = this;
-    hours_file.load_past_hours();
-}
-
-void Tracker::close(){
-    exiting.store(true);
-    paused = false;
-}
-
-void Tracker::track_time() {
-    ScreenController::initialize();
-    clock.start(initial_time);
-    printing = std::thread(&Tracker::print, this);
-    while (!exiting) {
-        short key = key_wait();
-        switch (key) {
-            case ' ':
-                if (paused) {
-                    clock.resume();
-                    paused = false;
-                } else {
-                    clock.pause();
-                    paused = true;
-                }
-                break;
-            case 127:
-                hours_file.clear();
-                break;
-            case 8:
-                hours_file.zero();
-                break;
-            //todo: fix insert key detect
-            case 21216:
-                hours_file.load_past_hours();
-                break;
-        }
-    }
-    printing.join();
-    clock.stop();
-    print();
-    hours_file.save(clock.elapsed_seconds());
-    ScreenController::deinitialize();
-}
-
-void Tracker::print() {
-    while (!exiting) {
-        std::string session_time = clock.elapsed_timestamp();
-        std::string accumulated_time = format_duration(std::chrono::duration_cast<std::chrono::seconds>(
-                duration<double>(hours_file.previous_seconds + clock.elapsed_seconds())));
-        double earnings = (hours_file.previous_hours + clock.elapsed_hours()) * hourly_rate;
-        ScreenController::print({session_time, accumulated_time, earnings}, paused);
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    }
 }
 
 int16_t Tracker::key_wait() {
@@ -110,4 +38,58 @@ int16_t Tracker::key_wait() {
         return input.key;
     }
     return -1;
+}
+
+Tracker::Tracker(){
+    config = GetConfigPath();
+    fs::create_directories(config.parent_path());
+    std::fstream file(config, std::ios::in);
+    std::string line;
+    std::stringstream ssline;
+    while(std::getline(file,line)) {
+        ssline.str(line);
+        if (line.find('.') == std::string::npos) {
+            int dollars = 0;
+            ssline >> dollars;
+            hourly_rate = dollars / 100.f;
+        }
+    }
+    instance = this;
+    hours_file.load();
+}
+
+void Tracker::start() {
+    ScreenController::initialize();
+    printing = std::thread(&Tracker::print, this);
+    while (!exiting) {
+        short key = key_wait();
+        switch (key) {
+            case ' ':
+                hours_file.checkin();
+                break;
+        }
+    }
+    printing.join();
+    ScreenController::deinitialize();
+}
+
+void Tracker::shutdown() {
+    exiting = true;
+}
+
+void Tracker::print() {
+    static time_point_sc now;
+    while (!exiting) {
+        now = chrono::system_clock::now();
+        chrono::nanoseconds session_elapsed = hours_file.clocked_in ? now - hours_file.clock_in : chrono::nanoseconds::zero();
+        chrono::nanoseconds accumulated = hours_file.past + hours_file.today + session_elapsed;
+        std::string session_str = duration_to_string(session_elapsed);
+        std::string accumulated_str = duration_to_string(accumulated);
+        chrono::duration<double, std::ratio<3600>> hours_acc = accumulated;
+        double earnings = hours_acc.count() * hourly_rate;
+        hours_acc = session_elapsed;
+        double session_earnings = hours_acc.count() * hourly_rate;
+        ScreenController::print({date_to_string(now), session_str, accumulated_str, earnings, session_earnings}, hours_file.clocked_in);
+        std::this_thread::sleep_for(chrono::milliseconds(500));
+    }
 }
