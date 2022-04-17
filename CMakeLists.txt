@@ -12,9 +12,13 @@ set(TARGET ${PROJECT_NAME})
 
 # dependencies
 file(GLOB_RECURSE SOURCES LIST_DIRECTORIES false src/*)
+add_subdirectory(extern/fmt)
+add_subdirectory(extern/hhdate)
 
 # include directories
 include_directories(include)
+include_directories(extern/fmt/include)
+include_directories(extern/hhdate/include)
 
 # targets
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
