@@ -24,7 +24,7 @@ inline std::string time_to_string(const time_point_sc time){
     return fmt::format(fmt_time, time);
 }
 
-inline std::string duration_to_string(const chrono::nanoseconds time){
+inline std::string duration_to_string(const chrono::seconds time){
     return fmt::format(fmt_time, time);
 }
 

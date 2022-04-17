@@ -1,10 +1,18 @@
 #include "time/hours-file.h"
 #include <iostream>
 
+void HoursFile::save(const time_point_sc &clock) {
+    log.open(file, std::ios::out | std::ios::app);
+    log << "," << time_to_string(clock);
+    log.close();
+}
+
 HoursFile::HoursFile() {
     file = fs::current_path().string() + "/time_log.csv";
 }
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "UnreachableCode"
 void HoursFile::load() {
     static const time_t ct(0);
     static auto offset_epoch = std::localtime(&ct);
@@ -17,6 +25,7 @@ void HoursFile::load() {
 
     log.open(file, std::ios::in);
     while (std::getline(log, line)) {
+        //_clocked_in = false;
         ssline.clear();
         ssline.str(line);
 
@@ -37,7 +46,7 @@ void HoursFile::load() {
                 std::stringstream ssword(line_date + word);
                 if (ssword >> hhdate::parse(time_format, has_clockin ? end : start)) {
                     if (is_today && !has_clockin) {
-                        time_in = start;
+                        time_in = start; //+ chrono::hours(offset_epoch->tm_hour) + chrono::minutes(offset_epoch->tm_min);
                     } else if (has_clockin) {
                         elapsed_today += chrono::duration_cast<chrono::minutes>(end - start);
                     }
@@ -45,35 +54,45 @@ void HoursFile::load() {
                 }
                 _clocked_in = has_clockin;
             }
+            if (!is_today) {
+                _clocked_in = false;
+            }
         }
     }
     log.close();
 }
+#pragma clang diagnostic pop
 
-void HoursFile::checkin() {
-    auto t = std::chrono::system_clock::now();
-    if(!_clocked_in) {
-        time_in = t;
-    }
-    std::string current_date = fmt::format(fmt_date, t);
-    std::string timestamp = fmt::format(fmt_time, t);
-    if (_clocked_in) {
-        // update elapsed today
-        elapsed_today += chrono::duration_cast<chrono::minutes>(t - time_in);
-    }
-    _clocked_in = !_clocked_in;
-    save(t);
+void HoursFile::clockin() {
+    assert(!clocked_in);
+    _clocked_in = true;
+    time_point_sc now = std::chrono::system_clock::now();
+    time_in = now;
+    new_day();
+    save(now);
 }
 
-void HoursFile::save(const time_point_sc &clock) {
-    std::string timestamp = fmt::format(fmt_time, clock);
-    auto now = chrono::system_clock::now();
-    auto date_now = date_to_string(now);
-    log.open(file, std::ios::out | std::ios::app);
-    if(date_to_string(date) != date_now){
-        date = now;
+void HoursFile::clockout() {
+    assert(clocked_in);
+    _clocked_in = false;
+    time_point_sc now = std::chrono::system_clock::now();
+    elapsed_today += chrono::duration_cast<chrono::minutes>(now - time_in);
+    new_day();
+    save(now);
+}
+
+void HoursFile::new_day() {
+    time_point_sc now = std::chrono::system_clock::now();
+    std::string date_now = date_to_string(now);
+    if (date_now != date_to_string(date)) {
+        log.open(file, std::ios::out | std::ios::app);
+        if (clocked_in) {
+            log << ",23:59:59";
+        }
         log << "\n" << date_now;
+        if (clocked_in) {
+            log << ",00:00:00";
+        }
+        log.close();
     }
-    log << "," << timestamp;
-    log.close();
 }
