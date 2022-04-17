@@ -1,0 +1,6 @@
+[submodule "extern/hhdate"]
+	path = extern/hhdate
+	url = https://github.com/HowardHinnant/date.git
+[submodule "extern/fmt"]
+	path = extern/fmt
+	url = https://github.com/fmtlib/fmt.git
