@@ -7,6 +7,8 @@ This requires ncurses, fmt, and HH's date library to build.
 ```shell
 $ git clone https://github.com/cppcooper/time-tracker.git
 $ cd time-tracker
+$ git submodule init
+$ git submodule update
 $ mkdir build
 $ cd build
 $ cmake .. -G Ninja
