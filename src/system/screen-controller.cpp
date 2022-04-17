@@ -16,15 +16,15 @@ void ScreenController::deinitialize() {
 
 void ScreenController::print(const Figures &figures, bool clocked_in) {
     clear();
-    printw("\nTime Tracker");
+    printw("\nTime Tracker\n- - - - - -");
     printw("\n -        Space   -- clock(in/out).");
-    printw("\n - Ctrl + C       -- stop tracking and exit.");
+    printw("\n - Ctrl + C       -- exit.");
     if (clocked_in) {
-        printw("\n    [CLOCKED IN]");
+        printw("\n                  [CLOCKED IN]");
     } else {
         printw("\n");
     }
-    printw("\n [%s]", figures.date.c_str());
+    printw("\n                  [%s]", figures.date.c_str());
     if (figures.earnings <= 0.f) {
         printw("\nAccumulated Time: %s", figures.accumulated_time.c_str());
         printw("\nSession Time:     %s\n", figures.session_time.c_str());
