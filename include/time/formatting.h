@@ -21,6 +21,7 @@ inline std::string duration_as_clock(chrono::nanoseconds time) {
     auto hours = chrono::hours(1);
     auto minutes = chrono::minutes(1);
     auto seconds = chrono::seconds(1);
+    os << std::setw(2) << std::setfill('0');
     os << (time / hours) << ":";
     time = time % hours;
     os << std::setw(2) << std::setfill('0');
