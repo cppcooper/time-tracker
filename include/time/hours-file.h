@@ -20,7 +20,7 @@ protected:
     void save(const time_point_sc &clock);
 public:
     HoursFile();
-    void load(); // set date
+    void load();
     void clockin();
     void clockout();
     void new_day();

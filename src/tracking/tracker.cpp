@@ -81,8 +81,8 @@ void Tracker::print() {
     static time_point_sc now;
     while (!exiting) {
         now = chrono::system_clock::now();
-        auto session_elapsed = chrono::duration_cast<chrono::seconds>(hours_file.clocked_in ? now - hours_file.clock_in : chrono::nanoseconds::zero());
-        auto accumulated = chrono::duration_cast<chrono::seconds>(hours_file.past + hours_file.today + session_elapsed);
+        chrono::seconds session_elapsed = hours_file.clocked_in ? chrono::duration_cast<chrono::seconds>(now - hours_file.clock_in) : chrono::seconds::zero();
+        chrono::seconds accumulated = hours_file.past + hours_file.today + session_elapsed;
         std::string session_str = duration_to_string(session_elapsed);
         std::string accumulated_str = duration_to_string(accumulated);
         chrono::duration<double, std::ratio<3600>> hours_acc = accumulated;
