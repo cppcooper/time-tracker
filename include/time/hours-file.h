@@ -20,9 +20,10 @@ protected:
     void save(const time_point_sc &clock);
 public:
     HoursFile();
-    void load();
-    void checkin();
-    //void new_line();
+    void load(); // set date
+    void clockin();
+    void clockout();
+    void new_day();
     //void new_file();
 
     const chrono::minutes &past = elapsed_past;
