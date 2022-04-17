@@ -1,6 +1,15 @@
 #include "time/hours-file.h"
 #include <iostream>
 
+chrono::minutes get_utc() {
+    time_t rawtime = time(NULL);
+    struct tm *ptm = gmtime(&rawtime);
+    time_t gmt = mktime(ptm);
+    ptm = localtime(&rawtime);
+    time_t offset = rawtime - gmt + (ptm->tm_isdst ? 3600 : 0);
+    return chrono::minutes(offset/60);
+}
+
 void HoursFile::save(const time_point_sc &clock) {
     log.open(file, std::ios::out | std::ios::app);
     log << "," << time_to_string(clock);
@@ -14,8 +23,7 @@ HoursFile::HoursFile() {
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "UnreachableCode"
 void HoursFile::load() {
-    static const time_t ct(0);
-    static auto offset_epoch = std::localtime(&ct);
+    static const chrono::minutes utc_offset = get_utc();
     time_point_sc now = chrono::system_clock::now();
     std::string current_date = date_to_string(now);
 
@@ -31,24 +39,25 @@ void HoursFile::load() {
 
         // try to extract a date timestamp
         if (ssline >> hhdate::parse(date_format, date)) {
-            date += chrono::hours(offset_epoch->tm_hour) + chrono::minutes(offset_epoch->tm_min);
+            // we subtract because the offset was already applied.. twice (technically; once when we saved, again when we parsed from file just now)
+            date -= utc_offset;
             std::string line_date = date_to_string(date);
 
             bool has_clockin = false;
             bool is_today = current_date == line_date;
             elapsed_past += elapsed_today;
             elapsed_today = chrono::minutes::zero();
-            time_point_sc start, end;
+            chrono::minutes start, end;
             std::string word;
 
             // get clock timestamps
             while (ssline >> word) {
                 std::stringstream ssword(line_date + word);
                 if (ssword >> hhdate::parse(time_format, has_clockin ? end : start)) {
-                    if (is_today && !has_clockin) {
-                        time_in = start; //+ chrono::hours(offset_epoch->tm_hour) + chrono::minutes(offset_epoch->tm_min);
-                    } else if (has_clockin) {
+                    if (has_clockin) {
                         elapsed_today += chrono::duration_cast<chrono::minutes>(end - start);
+                    } else if (is_today && !has_clockin) {
+                        time_in = date + start; //+ chrono::hours(offset_epoch->tm_hour) + chrono::minutes(offset_epoch->tm_min);
                     }
                     has_clockin = !has_clockin;
                 }

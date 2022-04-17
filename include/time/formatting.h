@@ -16,6 +16,22 @@ static constexpr const char* time_format = "%F %T";
 static constexpr const char* fmt_date = "{:%F}";
 static constexpr const char* fmt_time = "{:%T}";
 
+inline std::string duration_as_clock(chrono::nanoseconds time) {
+    std::ostringstream os;
+    auto hours = chrono::hours(1);
+    auto minutes = chrono::minutes(1);
+    auto seconds = chrono::seconds(1);
+    os << (time / hours) << ":";
+    time = time % hours;
+    os << std::setw(2) << std::setfill('0');
+    os << (time / minutes) << ":";
+    time = time % minutes;
+    os << std::setw(2) << std::setfill('0');
+    os << (time / seconds);
+    time = time % seconds;
+    return os.str();
+}
+
 inline std::string date_to_string(const time_point_sc time){
     return fmt::format(fmt_date, time);
 }
@@ -25,7 +41,7 @@ inline std::string time_to_string(const time_point_sc time){
 }
 
 inline std::string duration_to_string(const chrono::seconds time){
-    return fmt::format(fmt_time, time);
+    return duration_as_clock(time);
 }
 
 struct delimiter_ctype : std::ctype<char> {
@@ -42,18 +58,3 @@ struct delimiter_ctype : std::ctype<char> {
     }
     explicit delimiter_ctype(std::string delims, ::size_t refs = 0) : ctype(make_table(delims), false, refs) {}
 };
-
-inline std::string duration_as_clock(chrono::nanoseconds time) {
-    std::ostringstream os;
-    os << std::setw(2) << std::setfill('0');
-    auto hours = chrono::hours(1);
-    auto minutes = chrono::minutes(1);
-    auto seconds = chrono::seconds(1);
-    os << (time / hours) << ":";
-    time = time % hours;
-    os << (time / minutes) << ":";
-    time = time % minutes;
-    os << (time / seconds);
-    time = time % seconds;
-    return os.str();
-}
