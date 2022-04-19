@@ -12,8 +12,8 @@ set(TARGET ${PROJECT_NAME})
 
 # dependencies
 file(GLOB_RECURSE SOURCES LIST_DIRECTORIES false src/*)
-add_subdirectory(extern/fmt)
-add_subdirectory(extern/hhdate)
+add_subdirectory(extern/fmt EXCLUDE_FROM_ALL)
+add_subdirectory(extern/hhdate EXCLUDE_FROM_ALL)
 
 # include directories
 include_directories(include)
