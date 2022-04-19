@@ -16,7 +16,7 @@ $ sudo ninja install
 ```
 
 ## Configuration
-The program reads from `~/.config/time-tracking-wage` to load an hourly wage to use for calculations. The value is formatted in cents. eg.
+The program reads from `~/.config/time-tracker` to load an hourly wage to use for calculations. The value is formatted in cents. eg.
 ```
 # file
 3800
