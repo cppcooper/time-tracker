@@ -2,9 +2,15 @@
 set(CMAKE_CXX_STANDARD 20)
 project ("time-tracker")
 
-find_package(Curses)
-if(NOT CURSES_HAVE_NCURSES_H)
-    message(FATAL_ERROR "Ncurses not found, please install.")
+if(APPLE)
+    message("If it works, it works.. but apple builds are not currently supported.")
+endif()
+
+if(UNIX)
+    find_package(Curses)
+    if(NOT CURSES_HAVE_NCURSES_H)
+        message(FATAL_ERROR "Ncurses not found, please install.")
+    endif()
 endif()
 
 # target name
@@ -21,10 +27,16 @@ include_directories(extern/fmt/include)
 include_directories(extern/hhdate/include)
 
 # targets
-if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    set(CMAKE_INSTALL_PREFIX /usr/bin)
+if(UNIX)
+    if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+        set(CMAKE_INSTALL_PREFIX /usr/bin)
+    endif()
 endif()
 add_executable(${TARGET} ${SOURCES})
-target_link_libraries(${TARGET} ncurses pthread fmt)
+if(UNIX)
+    target_link_libraries(${TARGET} ncurses pthread fmt)
+else()
+    target_link_libraries(${TARGET} pthread fmt)
+endif()
 install(TARGETS ${TARGET}
         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
