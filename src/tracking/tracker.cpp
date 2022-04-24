@@ -2,6 +2,13 @@
 #include "time/formatting.h"
 #include <filesystem>
 
+#ifndef WINDOWS
+  #include <ncurses.h>
+#else
+  #include <thread>
+  #include <conio.h>
+#endif
+
 namespace fs = std::filesystem;
 Tracker* instance = nullptr;
 
@@ -27,7 +34,11 @@ int16_t Tracker::key_wait() {
         input.key_bytes[0] = getch();
         switch(input.key_bytes[0]){
             case ERR:
+#ifndef WINDOWS
                 napms(500);
+#else
+                std::this_thread::sleep_for(std::chrono::milliseconds(500));
+#endif
                 continue;
             case 0:
             case -32:

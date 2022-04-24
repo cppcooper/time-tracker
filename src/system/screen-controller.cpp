@@ -1,16 +1,14 @@
 #include "system/screen-controller.h"
+
+#ifndef WINDOWS
+#include <ncurses.h>
+#else
 #include <thread>
-#if defined(__linux) || defined(__linux__) || defined(linux)
-# define LINUX
-#elif defined(__APPLE__)
-# define MACOS
-#elif defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || defined(_WIN64)
-# define WINDOWS
 #endif
 
 
 void ScreenController::initialize() {
-#ifdef LINUX
+#ifndef WINDOWS
     initscr();
     noecho();
     cbreak();
@@ -22,12 +20,13 @@ void ScreenController::initialize() {
 }
 
 void ScreenController::deinitialize() {
-#ifdef LINUX
+#ifndef WINDOWS
     endwin();
 #endif
 }
 
 void print_ncurses(const Figures &figures, bool clocked_in) {
+#ifndef WINDOWS
     clear();
     printw("\nTime Tracker\n- - - - - -");
     printw("\n -        Space   -- clock(in/out).");
@@ -46,9 +45,11 @@ void print_ncurses(const Figures &figures, bool clocked_in) {
         printw("\nSession Time:     %s - $%.2f\n", figures.session_time.c_str(), figures.session_earnings);
     }
     refresh();
+#endif
 }
 
 void print_windows(const Figures &figures, bool clocked_in) {
+#ifdef WINDOWS
     for(int i = 0; i < 7; ++i) {
         printf("\x1b[A\r                               \r");
     }
@@ -69,12 +70,13 @@ void print_windows(const Figures &figures, bool clocked_in) {
         printf("\nSession Time:     %s - $%.2f\n", figures.session_time.c_str(), figures.session_earnings);
     }
     std::this_thread::sleep_for(std::chrono::seconds(1));
+#endif
 }
 
 void ScreenController::print(const Figures &figures, bool clocked_in) {
-#ifdef LINUX
-    print_ncurses(figures, clocked_in);
-#elifdef WINDOWS
+#ifdef WINDOWS
     print_windows(figures, clocked_in);
+#else
+    print_ncurses(figures, clocked_in);
 #endif
 }
