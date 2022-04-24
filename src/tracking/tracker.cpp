@@ -5,6 +5,7 @@
 #ifndef WINDOWS
   #include <ncurses.h>
 #else
+  #define ERR -1
   #include <thread>
   #include <conio.h>
 #endif
