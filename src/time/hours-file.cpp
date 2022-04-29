@@ -1,5 +1,6 @@
 #include "time/hours-file.h"
 #include <iostream>
+#include <regex>
 
 chrono::minutes get_utc() {
     time_t rawtime = time(NULL);
@@ -10,7 +11,30 @@ chrono::minutes get_utc() {
     return chrono::minutes(offset/60);
 }
 
+// if you prefer the namespaced version
+std::string trim(std::string s) {
+    std::regex e("^\\s+|\\s+$"); // remove leading and trailing spaces
+    return std::regex_replace(s, e, "");
+}
+
+void trim_file(const fs::path &path) {
+    std::fstream file(path);
+    if (file) {
+        file.seekg(0, std::ios::end);
+        uint32_t file_size = file.tellg();
+        char* buffer = new char[file_size];
+        file.seekg(0);
+        file.read(buffer, file_size);
+        std::string contents = trim(buffer);
+        file.seekp(0);
+        file.write(contents.c_str(), contents.size());
+        file.close();
+        delete[] buffer;
+    }
+}
+
 void HoursFile::save(const time_point_sc &clock) {
+    trim_file(file);
     log.open(file, std::ios::out | std::ios::app);
     log << "," << time_to_string(clock);
     log.close();
@@ -23,6 +47,7 @@ HoursFile::HoursFile() {
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "UnreachableCode"
 void HoursFile::load() {
+    trim_file(file);
     static const chrono::minutes utc_offset = get_utc();
     time_point_sc now = chrono::system_clock::now();
     std::string current_date = date_to_string(now);
