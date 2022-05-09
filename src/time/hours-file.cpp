@@ -33,10 +33,6 @@ void trim_file(const fs::path &path) {
     }
 }
 
-void HoursFile::append(const time_point_sc &clock) {
-    log << "," << time_to_string(clock);
-}
-
 HoursFile::HoursFile() {
     file = fs::current_path().string() + "/time_log.csv";
     date = chrono::system_clock::now();
@@ -52,7 +48,7 @@ void HoursFile::load() {
     std::stringstream ssline;
     ssline.imbue(std::locale(ssline.getloc(), new delimiter_ctype(",")));
 
-    log.open(file, std::ios::in);
+    std::fstream log = std::fstream(file, std::ios::in);
     // read each line of the time_log.csv of the working directory
     while (std::getline(log, line)) {
         // load the line string into a stream
@@ -115,17 +111,21 @@ void HoursFile::clockin() {
     time_in = now;
     date = now;
 
+    std::fstream log;
     if (!fs::exists(file)) {
-        log.open(file, std::ios::out);
+        log = std::fstream(file, std::ios::out);
     } else {
         trim_file(file);
-        log.open(file, std::ios::out | std::ios::app);
+        log = std::fstream(file, std::ios::out | std::ios::app);
     }
     if(!has_today) {
         has_today = true;
         log << date_to_string(now);
     }
-    append(now);
+    std::string str = time_to_string(now);
+    const char* cstr = str.c_str();
+    log << "," << str;
+    log.flush();
     log.close();
 }
 
@@ -138,7 +138,7 @@ void HoursFile::clockout() {
 
     // we gotta make sure appending to the file doesn't result in a malformed file, so we trim trailing whitespace
     trim_file(file);
-    log.open(file, std::ios::out | std::ios::app);
+    std::fstream log = std::fstream(file, std::ios::out | std::ios::app);
 
     // if we clocked in yesterday, we gotta do special stuff
     // todo: make this not break if someone works for 50 hours straight or something ridiculous
@@ -147,6 +147,9 @@ void HoursFile::clockout() {
         log << ",23:59:59\n" << date_now << ",00:00:00";
     }
     // finally, we now append the current clockout time
-    append(now);
+    std::string str = time_to_string(now);
+    const char* cstr = str.c_str();
+    log << "," << str;
+    log.flush();
     log.close();
 }
