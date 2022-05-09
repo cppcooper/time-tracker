@@ -15,15 +15,15 @@ private:
     time_point_sc time_in;
     chrono::minutes elapsed_past = chrono::minutes::zero();
     chrono::minutes elapsed_today = chrono::minutes::zero();
+    std::atomic<bool> has_today = false;
     std::atomic<bool> _clocked_in = false;
 protected:
-    void save(const time_point_sc &clock);
+    void append(const time_point_sc &clock);
 public:
     HoursFile();
     void load();
     void clockin();
     void clockout();
-    void new_day();
     //void new_file();
 
     const chrono::minutes &past = elapsed_past;
