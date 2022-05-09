@@ -12,7 +12,7 @@ namespace chrono = std::chrono;
 using time_point_sc = chrono::time_point<chrono::system_clock>;
 
 static constexpr const char* date_format = "%F";
-static constexpr const char* time_format = "%F %T";
+static constexpr const char* time_format = "%T";
 static constexpr const char* fmt_date = "{:%F}";
 static constexpr const char* fmt_time = "{:%T}";
 
