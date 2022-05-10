@@ -5,9 +5,9 @@
 #ifndef WINDOWS
   #include <ncurses.h>
 #else
-  #define ERR -1
   #include <thread>
   #include <conio.h>
+  #include <windows.h>
 #endif
 
 namespace fs = std::filesystem;
@@ -25,32 +25,36 @@ inline fs::path GetConfigPath() {
     return home_path + "time-tracker";
 }
 
-int16_t Tracker::key_wait() {
-    union Key {
-        int16_t key = 0;
-        int8_t key_bytes[2];
+#ifdef WINDOWS
+void clear_input(){
+    while (_kbhit()){
+        _getch();
+    }
+}
+
+int16_t key_wait(){
+    union Key
+    {
+        int16_t key;
+        int8_t  key_bytes[2];
     };
-    while(!exiting){
-        Key input;
-        input.key_bytes[0] = getch();
-        switch(input.key_bytes[0]){
-            case ERR:
-#ifndef WINDOWS
-                napms(500);
-#else
-                std::this_thread::sleep_for(std::chrono::milliseconds(500));
-#endif
-                continue;
+    Key input;
+    input.key = 0;
+    for(int i = 0; i < 2; ++i){
+        clear_input();
+        while(!_kbhit()){}
+        input.key_bytes[i] = _getch();
+        switch(input.key_bytes[i]){
             case 0:
             case -32:
-                input.key_bytes[1] = getch();
-            default:
                 break;
+            default:
+                return input.key;
         }
-        return input.key;
     }
     return -1;
 }
+#endif
 
 Tracker::Tracker(){
     config = GetConfigPath();
@@ -74,10 +78,20 @@ void Tracker::start() {
     ScreenController::initialize();
     printing = std::thread(&Tracker::print, this);
     while (!exiting) {
+#ifndef WINDOWS
+        short key = getch();
+#else
         short key = key_wait();
+#endif
         switch (key) {
             case ' ':
                 !hours_file.clocked_in ? hours_file.clockin() : hours_file.clockout();
+                break;
+            case KEY_EXIT:
+                shutdown();
+                break;
+            case ERR:
+                napms(250);
                 break;
         }
     }
@@ -102,6 +116,10 @@ void Tracker::print() {
         hours_acc = session_elapsed;
         double session_earnings = hours_acc.count() * hourly_rate;
         ScreenController::print({date_to_string(now), session_str, accumulated_str, earnings, session_earnings}, hours_file.clocked_in);
+#ifndef WINDOWS
+        napms(500);
+#else
         std::this_thread::sleep_for(chrono::milliseconds(500));
+#endif
     }
 }

@@ -15,9 +15,6 @@ private:
     std::atomic<bool> exiting = false;
     double hourly_rate = -1.f;
 
-protected:
-    int16_t key_wait();
-
 public:
     Tracker();
     void start();
