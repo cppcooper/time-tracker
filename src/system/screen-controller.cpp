@@ -12,10 +12,9 @@ void ScreenController::initialize() {
     initscr();
     noecho();
     cbreak();
-    //halfdelay(1);
-    scrollok(stdscr, FALSE);
-    nodelay(stdscr, TRUE);
-    keypad(stdscr, TRUE);
+    keypad(stdscr, true);
+    nodelay(stdscr, true);
+    leaveok(stdscr, true);
 #endif
 }
 
@@ -74,9 +73,9 @@ void print_windows(const Figures &figures, bool clocked_in) {
 }
 
 void ScreenController::print(const Figures &figures, bool clocked_in) {
-#ifdef WINDOWS
-    print_windows(figures, clocked_in);
-#else
+#ifndef WINDOWS
     print_ncurses(figures, clocked_in);
+#else
+    print_windows(figures, clocked_in);
 #endif
 }

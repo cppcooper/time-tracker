@@ -1,6 +1,7 @@
 #include "time/hours-file.h"
 #include <iostream>
 #include <regex>
+#include <thread>
 
 chrono::minutes get_utc() {
     time_t rawtime = time(NULL);
@@ -18,6 +19,7 @@ std::string trim(std::string s) {
 }
 
 void trim_file(const fs::path &path) {
+    return;
     std::fstream file(path);
     if (file) {
         file.seekg(0, std::ios::end);
@@ -31,6 +33,7 @@ void trim_file(const fs::path &path) {
         file.close();
         delete[] buffer;
     }
+    std::this_thread::sleep_for(chrono::milliseconds(250));
 }
 
 HoursFile::HoursFile() {
@@ -120,7 +123,7 @@ void HoursFile::clockin() {
     }
     if(!has_today) {
         has_today = true;
-        log << date_to_string(now);
+        log << std::endl << date_to_string(now);
     }
     std::string str = time_to_string(now);
     const char* cstr = str.c_str();
