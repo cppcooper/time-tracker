@@ -100,6 +100,7 @@ void HoursFile::load() {
             if (is_today) {
                 has_today = true;
                 _clocked_in = has_clockin;
+                //date is set in constructor, load only happens once.. so we don't need to do anything
             }
         }
     }
@@ -111,6 +112,9 @@ void HoursFile::clockin() {
     assert(!clocked_in);
     _clocked_in = true;
     time_point_sc now = std::chrono::system_clock::now();
+    if(date_to_string(now) != date_to_string(date)){
+        has_today = false;
+    }
     time_in = now;
     date = now;
 
