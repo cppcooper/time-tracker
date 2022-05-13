@@ -127,6 +127,8 @@ void HoursFile::clockin() {
     }
     if(!has_today) {
         has_today = true;
+        elapsed_past += elapsed_today;
+        elapsed_today = chrono::minutes::zero();
         log << std::endl << date_to_string(now);
     }
     std::string str = time_to_string(now);
